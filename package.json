@@ -1,0 +1,50 @@
+{
+  "name": "copilot-taskmaster-extension",
+  "version": "1.0.0",
+  "description": "A GitHub Copilot chat extension that integrates with the Taskmaster-AI MCP server.",
+  "main": "src/extension.ts",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc -w",
+    "test": "echo \"No tests specified\" && exit 0"
+  },
+  "activationEvents": [
+    "onCommand:copilot-taskmaster.start",
+    "onCommand:copilot-taskmaster.sendMessage",
+    "onCommand:copilot-taskmaster.disconnect"
+  ],
+  "contributes": {
+    "commands": [
+      {
+        "command": "copilot-taskmaster.start",
+        "title": "Copilot Taskmaster: Start"
+      },
+      {
+        "command": "copilot-taskmaster.sendMessage",
+        "title": "Copilot Taskmaster: Send Message"
+      },
+      {
+        "command": "copilot-taskmaster.disconnect",
+        "title": "Copilot Taskmaster: Disconnect"
+      }
+    ]
+  },
+  "keywords": [
+    "github",
+    "copilot",
+    "extension",
+    "taskmaster",
+    "mcp"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "ws": "^7.4.6"
+  },
+  "devDependencies": {
+    "@types/node": "^16.7.10",
+    "@types/vscode": "^1.99.1",
+    "typescript": "^4.4.3"
+  }
+}

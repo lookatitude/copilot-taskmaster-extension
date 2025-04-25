@@ -1,17 +1,37 @@
 import * as vscode from 'vscode';
-import { TaskmasterClient } from './taskmaster/client';
-import { TaskmasterParticipant } from './chat/TaskmasterParticipant';
+import TaskmasterClient from './taskmaster/client';
+import TaskmasterParticipant from './chat/TaskmasterParticipant';
 import { CopilotAdapter } from './copilotAdapter';
 
 export function activate(context: vscode.ExtensionContext) {
     // Instantiate the CopilotAdapter
     const copilotAdapter = new CopilotAdapter(/* pass dependencies if needed */);
 
-    // Provide your MCP server URL here
-    const serverUrl = 'ws://localhost:8080'; // TODO: Replace with actual MCP server URL
+    // Dynamically determine the MCP server URL from user settings
+    const config = vscode.workspace.getConfiguration('mcp');
+    let serverUrl = 'ws://localhost:8080';
+    try {
+        const servers = config.get<any>('servers');
+        const taskmaster = servers && servers['taskmaster-ai'];
+        if (taskmaster && Array.isArray(taskmaster.args)) {
+            // Try to find a --port or -p argument
+            let port: string | undefined;
+            for (let i = 0; i < taskmaster.args.length; i++) {
+                if (taskmaster.args[i] === '--port' || taskmaster.args[i] === '-p') {
+                    port = taskmaster.args[i + 1];
+                    break;
+                }
+            }
+            if (port) {
+                serverUrl = `ws://localhost:${port}`;
+            }
+        }
+    } catch (e) {
+        // fallback to default
+    }
     const taskmasterClient = new TaskmasterClient(serverUrl, copilotAdapter);
 
-    const participant = new TaskmasterParticipant(taskmasterClient);
+    const participant = new TaskmasterParticipant(serverUrl);
 
     context.subscriptions.push(
         vscode.commands.registerCommand('copilot-taskmaster.start', () => {

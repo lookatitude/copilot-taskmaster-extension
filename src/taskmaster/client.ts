@@ -1,5 +1,5 @@
 import { CopilotAdapter } from '../copilotAdapter';
-import { formatMCPRequest, parseMCPResponse } from '../mcp/protocol';
+import { formatMCPRequest, parseMCPResponse, formatMCPCompletionResponse, isLLMRequest } from '../mcp/protocol';
 
 class TaskmasterClient {
     private serverUrl: string;
@@ -49,12 +49,17 @@ class TaskmasterClient {
 
     private async handleMessage(message: string): Promise<void> {
         const data = JSON.parse(message);
-        // Example: Intercept LLM request type
-        if (data.type === 'llm_request') {
+        if (isLLMRequest(data)) {
             const prompt = data.prompt;
-            const completion = await this.copilotAdapter.sendPrompt(prompt);
-            const response = formatMCPRequest(completion);
-            this.sendRequest(response);
+            const requestId = data.requestId || '';
+            try {
+                const completion = await this.copilotAdapter.sendPrompt(prompt);
+                const response = formatMCPCompletionResponse(requestId, completion);
+                this.sendRequest(response);
+            } catch (err) {
+                const errorResponse = formatMCPCompletionResponse(requestId, '[Error] Copilot LLM failed: ' + (err instanceof Error ? err.message : String(err)));
+                this.sendRequest(errorResponse);
+            }
         } else {
             console.log('Received message:', data);
         }

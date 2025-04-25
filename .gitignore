@@ -1,0 +1,28 @@
+# Node
+node_modules/
+
+# Build output
+dist/
+build/
+*.tsbuildinfo
+
+# VS Code
+.vscode/
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+Thumbs.db
+
+# TypeScript
+*.js
+*.js.map
+
+# Misc
+.env
+.env.*
+
+# Extension packaging
+*.vsix
